@@ -39,6 +39,7 @@ export default function Home() {
 
   let signList = []
   let currentSign = 0
+  let currentDetectedSign = ""
 
   let gamestate = "started"
 
@@ -52,7 +53,7 @@ export default function Home() {
 
     setInterval(() => {
       detect(net)
-    }, 150)
+    }, 500)
   }
 
   function _signList() {
@@ -62,7 +63,7 @@ export default function Home() {
   function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
-      ;[a[i], a[j]] = [a[j], a[i]]
+        ;[a[i], a[j]] = [a[j], a[i]]
     }
     return a
   }
@@ -132,7 +133,7 @@ export default function Home() {
 
         if (gamestate === "started") {
           document.querySelector("#app-title").innerText =
-            "Make a 👍 gesture with your hand to start"
+            "Make a gesture"
         }
 
         if (
@@ -152,10 +153,7 @@ export default function Home() {
             _signList()
             gamestate = "played"
             document.getElementById("emojimage").classList.add("play")
-            document.querySelector(".tutor-text").innerText =
-              "make a hand gesture based on letter shown below"
           } else if (gamestate === "played") {
-            document.querySelector("#app-title").innerText = ""
 
             //looping the sign list
             if (currentSign === signList.length) {
@@ -163,25 +161,41 @@ export default function Home() {
               currentSign = 0
               return
             }
-
-            // console.log(signList[currentSign].src.src)
-
             //game play state
-
             if (
               typeof signList[currentSign].src.src === "string" ||
               signList[currentSign].src.src instanceof String
             ) {
-              document
-                .getElementById("emojimage")
-                .setAttribute("src", signList[currentSign].src.src)
-              if (
-                signList[currentSign].alt ===
-                estimatedGestures.gestures[maxConfidence].name
-              ) {
-                currentSign++
+              if (estimatedGestures.gestures[maxConfidence].name != currentDetectedSign) {
+
+                currentDetectedSign=estimatedGestures.gestures[maxConfidence].name;
+                console.log(currentDetectedSign);
+
+                if (currentDetectedSign == "thumbs_up") {
+                  document
+                    .getElementById("emojimage")
+                    .setAttribute("src", "https://gifdb.com/images/high/trump-sparkling-thumbs-up-g9ntu1mru3jj476s.gif");
+                  console.log("trump should show up")
+                }
+                else if (currentDetectedSign == "B") {
+                  document
+                    .getElementById("emojimage")
+                    .setAttribute("src", "https://c.tenor.com/AjlWbHVArVEAAAAC/tenor.gif")
+                    console.log("High Five")
+                }
+                else if (currentDetectedSign == "I" | currentDetectedSign == "L") {
+                  document
+                    .getElementById("emojimage")
+                    .setAttribute("src", "https://i.pinimg.com/originals/e7/90/54/e79054a95f03d2b854dd4fa2dc42216f.gif")
+                    console.log("Victory Dance")
+                }
+                else {
+                  document
+                    .getElementById("emojimage")
+                    .setAttribute("src", "")
+                }
+                setSign(currentDetectedSign)
               }
-              setSign(estimatedGestures.gestures[maxConfidence].name)
             }
           } else if (gamestate === "finished") {
             return
@@ -194,21 +208,9 @@ export default function Home() {
     }
   }
 
-  //   if (sign) {
-  //     console.log(sign, Signimage[sign])
-  //   }
-
   useEffect(() => {
     runHandpose()
   }, [])
-
-  function turnOffCamera() {
-    if (camState === "on") {
-      setCamState("off")
-    } else {
-      setCamState("on")
-    }
-  }
 
   return (
     <ChakraProvider>
@@ -287,26 +289,9 @@ export default function Home() {
             }}
           ></Box>
 
-          <Image h="150px" objectFit="cover" id="emojimage" />
+          <Image h="350px" objectFit="cover" id="emojimage" />
           {/* <pre className="pose-data" color="white" style={{position: 'fixed', top: '150px', left: '10px'}} >Pose data</pre> */}
         </Container>
-
-        <Stack id="start-button" spacing={4} direction="row" align="center">
-          <Button
-            leftIcon={
-              camState === "on" ? (
-                <RiCameraFill size={20} />
-              ) : (
-                <RiCameraOffFill size={20} />
-              )
-            }
-            onClick={turnOffCamera}
-            colorScheme="orange"
-          >
-            Camera
-          </Button>
-          <About />
-        </Stack>
       </Box>
     </ChakraProvider>
   )
